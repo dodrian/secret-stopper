@@ -1,0 +1,11 @@
+#!/bin/sh
+
+
+file="test/secrets.env"
+tmpfile=${file}.pre-push
+
+
+
+mv $tmpfile $file
+
+# need to stop traking file 

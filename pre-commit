@@ -1,0 +1,11 @@
+#!/bin/sh
+#
+
+file="test/secrets.env"
+tmpfile=${file}.pre-push
+
+git reset $file  # unstage
+mv $file $tmpfile #save
+sed -r 's/(^\s*)(\S+)=(\S+)(\h*.*)$/\1\2=\4/gm' $tmpfile > $file
+git add $file
+
