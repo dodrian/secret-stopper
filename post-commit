@@ -1,11 +1,15 @@
 #!/bin/sh
 
+SS_FILE=".secret-stopper.secrets-stopped"
 
-file="test/secrets.env"
-tmpfile=${file}.pre-push
+while read file; do
+  tmpfile=${file}.ss-pre-push
+  mv $tmpfile $file
+
+  # need to stop traking file 
+
+done < $SS_FILE
+
+rm $SS_FILE
 
 
-
-mv $tmpfile $file
-
-# need to stop traking file 

@@ -1,11 +1,30 @@
-#!/bin/sh
+#!/bin/bash
 #
 
-file="test/secrets.env"
-tmpfile=${file}.pre-push
+SS_FILE=".secret-stopper.secrets-stopped"
+>| $SS_FILE
+SS_SECRET_PATTERNS=(
+  "*secrets.env"
+  "(*?(/)secrets/*)"
+)
 
-git reset $file  # unstage
-mv $file $tmpfile #save
-sed -r 's/(^\s*)(\S+)=(\S+)(\h*.*)$/\1\2=\4/gm' $tmpfile > $file
-git add $file
+is_secret() {
+  for pattern in ${SS_SECRET_PATTERNS}; do
+    [[ $1 == $pattern  ]] && echo "$1 matches $pattern" && return 0;
+  done 
+  echo "$1 does not match any secret patterns."
+  return 1
+}
+
+while read status filename; do
+  if is_secret $filename; then 
+    tmpfile=${filename}.ss-pre-push
+    git reset $filename  # unstage
+    mv $filename $tmpfile #save
+    sed -r 's/(^\s*)(\S+)=(\S+)(\h*.*)$/\1\2=\4/gm' $tmpfile > $filename
+    git add $filename
+    echo $filename >> $SS_FILE
+  fi
+done < <(git status --porcelain --untracked-files=no)
+
 
