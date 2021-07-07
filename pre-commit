@@ -5,12 +5,13 @@ SS_FILE=".secret-stopper.secrets-stopped"
 >| $SS_FILE
 SS_SECRET_PATTERNS=(
   "*secrets.env"
-  "(*?(/)secrets/*)"
+  "*secrets.py"
+  "^(.*/)?secrets/*"
 )
 
 is_secret() {
-  for pattern in ${SS_SECRET_PATTERNS}; do
-    [[ $1 == $pattern  ]] && echo "$1 matches $pattern" && return 0;
+  for pattern in ${SS_SECRET_PATTERNS[*]}; do
+    [[ $1 =~ $pattern  ]] && echo "$1 matches $pattern" && return 0;
   done 
   echo "$1 does not match any secret patterns."
   return 1
